@@ -1,6 +1,0 @@
-gaussian_extension.cpp
-setup.py
-gaussian_extension_cpp.egg-info/PKG-INFO
-gaussian_extension_cpp.egg-info/SOURCES.txt
-gaussian_extension_cpp.egg-info/dependency_links.txt
-gaussian_extension_cpp.egg-info/top_level.txt
