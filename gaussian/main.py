@@ -41,48 +41,50 @@ class gaussianExtension(nn.Module):
 if __name__ == '__main__':
 	ge = gaussianExtension()
 
-	input = torch.full([2], 5, requires_grad=True)
-	print(input)
-	mu = np.array([10, 5])
+	# generate a gaussian distribution
+	mu_pred = torch.full([2], 8, requires_grad=True) # predicted mean
+	co_pred = torch.eye(2, requires_grad=True)        # predicted covariance
+	mu_gt = np.array([16, 16])                        # ground truth mean
 	
 	gaussian = torch.zeros([32, 32])
 
 	for x in range(32):
 		for y in range(32):
-	 			a = torch.full([1], -0.05*((x - mu[0])**2+(y - mu[1])**2))
-	 			gaussian[x, y] = 255*a.exp()
+	 			a = torch.full([1], -0.05*((x - mu_gt[0])**2+(y - mu_gt[1])**2))
+	 			gaussian[x, y] = a.exp()
 
-	opt = optim.Adam([input], lr=0.1)
+	opt = optim.Adam([mu_pred], lr=0.1)
 	criterion = nn.MSELoss()
 
-	path = []
+	# run for some iterations
+	for i in range(200):
 
-	for i in range(100):
-
-		print(i)
-		output = ge.forward(input)
-
-		path.append([input.detach().numpy()[0], input.detach().numpy()[1]])
+		output = ge.forward(mu_pred)
 
 		opt.zero_grad()
 		loss = criterion(output, gaussian)	
 		loss.backward()
 		opt.step()
-		print("Loss: ", loss.item())
+		
+		# store progress
+		if (i % 10 == 0):
+			print(i)
+			print("Loss: ", loss.item())
+			pred = ge.forward(mu_pred).detach().numpy()
+			gt = gaussian.numpy()
 
-	np.savetxt('path.csv', np.array(path))
+			plt.suptitle('Gaussian Models at Iteration {}'.format(i))
+			plt.subplot(121)
+			plt.title('Predicted')
+			plt.imshow(pred)
+			plt.subplot(122)
+			plt.title('Ground Truth')
+			plt.imshow(gt)
 
-	output = ge.forward(input).detach().numpy()
-	gaussian = gaussian.numpy()
+			plt.savefig('img/output_iteration_{}.png'.format(i))	
+			plt.clf()		
 
-	plt.subplot(121)
-	plt.title('Predicted')
-	plt.imshow(output)
-	plt.subplot(122)
-	plt.title('Ground Truth')
-	plt.imshow(gaussian)
 
-	plt.savefig('output.png')
 
 
 	

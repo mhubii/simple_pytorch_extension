@@ -1,4 +1,5 @@
 #include <torch/extension.h>
+#include <math.h>
 
 torch::Tensor forward(torch::Tensor input) {
 
@@ -8,7 +9,7 @@ torch::Tensor forward(torch::Tensor input) {
 	for (int32_t x = 0; x < gaussian.size(0); ++x) {
 		for (int32_t y = 0; y < gaussian.size(1); ++y) {
 
-			gaussian[x][y] = 255*torch::exp(-0.05*((x - input[0]).pow(2)+(y - input[1]).pow(2)));
+			gaussian[x][y] = torch::exp(-0.05*((x - input[0]).pow(2)+(y - input[1]).pow(2)));
 		}
 	}
 
@@ -24,10 +25,10 @@ torch::Tensor backward(torch::Tensor input, torch::Tensor grad_output) {
 		for (int32_t y = 0; y < 32; ++y) {
 
 			// d/dx
-			output[0] += grad_output[x][y]*255*(x - input[0])*torch::exp(-0.05*((x - input[0]).pow(2)+(y - input[1]).pow(2)));
+			output[0] += grad_output[x][y]*(x - input[0])*torch::exp(-0.05*((x - input[0]).pow(2)+(y - input[1]).pow(2)));
 
 			// d/dy
-			output[1] += grad_output[x][y]*255*(y - input[1])*torch::exp(-0.05*((x - input[0]).pow(2)+(y - input[1]).pow(2)));
+			output[1] += grad_output[x][y]*(y - input[1])*torch::exp(-0.05*((x - input[0]).pow(2)+(y - input[1]).pow(2)));
 		}
 	}
 
