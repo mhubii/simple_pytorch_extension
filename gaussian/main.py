@@ -42,24 +42,25 @@ if __name__ == '__main__':
 	ge = gaussianExtension()
 
 	# generate a gaussian distribution
-	mu_pred = torch.full([2], 8, requires_grad=True) # predicted mean
-	co_pred = torch.eye(2, requires_grad=True)        # predicted covariance
+	mu_opt = torch.full([2], 8, requires_grad=True)   # optimized mean
 	mu_gt = np.array([16, 16])                        # ground truth mean
 	
-	gaussian = torch.zeros([32, 32])
+	size = 32
+	gaussian = torch.zeros([size, size])
+	sigma = 5 # in units of pixel
 
-	for x in range(32):
-		for y in range(32):
-	 			a = torch.full([1], -0.05*((x - mu_gt[0])**2+(y - mu_gt[1])**2))
-	 			gaussian[x, y] = a.exp()
+	for x in range(size):
+		for y in range(size):
+	 			a = torch.full([1], -0.5/sigma**2*((x - mu_gt[0])**2+(y - mu_gt[1])**2))
+	 			gaussian[x, y] = 1/np.sqrt(2*np.pi*sigma**2)*a.exp()
 
-	opt = optim.Adam([mu_pred], lr=0.1)
+	opt = optim.Adam([mu_opt], lr=0.1)
 	criterion = nn.MSELoss()
 
 	# run for some iterations
-	for i in range(200):
+	for i in range(80):
 
-		output = ge.forward(mu_pred)
+		output = ge.forward(mu_opt)
 
 		opt.zero_grad()
 		loss = criterion(output, gaussian)	
@@ -70,18 +71,18 @@ if __name__ == '__main__':
 		if (i % 10 == 0):
 			print(i)
 			print("Loss: ", loss.item())
-			pred = ge.forward(mu_pred).detach().numpy()
-			gt = gaussian.numpy()
+			gaussian_opt = ge.forward(mu_opt).detach().numpy()
+			gaussian_gt = gaussian.numpy()
 
 			plt.suptitle('Gaussian Models at Iteration {}'.format(i))
 			plt.subplot(121)
-			plt.title('Predicted')
-			plt.imshow(pred)
+			plt.title('Optimized')
+			plt.imshow(gaussian_opt)
 			plt.subplot(122)
 			plt.title('Ground Truth')
-			plt.imshow(gt)
+			plt.imshow(gaussian_gt)
 
-			plt.savefig('img/output_iteration_{}.png'.format(i))	
+			plt.savefig('img/output_iteration_{}.jpg'.format(i))	
 			plt.clf()		
 
 
