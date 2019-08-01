@@ -6,7 +6,7 @@ Given the mean, this extension computes a 2D gaussian distribution with diagonal
 
 <br>
 <figure>
-  <p align="center"><img src="gaussian/img/output_gif.gif" width="50%" height="50%"></p>
+  <p align="center"><img src="gaussian/img/output.gif" width="50%" height="50%"></p>
   <figcaption>Fig. 1: Evolution of learned average for gaussian layer.</figcaption>
 </figure>
 <br><br>
